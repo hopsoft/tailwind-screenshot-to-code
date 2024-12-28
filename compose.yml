@@ -1,0 +1,36 @@
+name: screenshot-to-code
+
+volumes:
+  backend_pycache:
+  backend_venv:
+  frontend_node_modules:
+
+services:
+  backend:
+    container_name: backend
+    build:
+      context: ./
+      dockerfile: Containerfile.backend
+    ports: ["3001:7000"]
+    volumes:
+      - ./backend:/app
+      - backend_pycache:/app/__pycache__
+      - backend_venv:/app/.venv
+    environment:
+      PYTHONUNBUFFERED: 1
+    restart: unless-stopped
+
+  frontend:
+    container_name: frontend
+    build:
+      context: ./
+      dockerfile: ./Containerfile.frontend
+    ports: ["3000:5173"]
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+    environment:
+      - VITE_WS_BACKEND_URL=ws://127.0.0.1:3001
+    depends_on:
+      - backend
+    restart: unless-stopped

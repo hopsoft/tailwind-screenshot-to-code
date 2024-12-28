@@ -1,0 +1,42 @@
+FROM python:3.10-alpine
+
+# Install system dependencies
+RUN apk add --no-cache \
+    gcc \
+    musl-dev \
+    python3-dev \
+    libffi-dev \
+    openssl-dev \
+    git \
+    make \
+    rust \
+    cargo \
+    jpeg-dev \
+    zlib-dev \
+    libjpeg \
+    libpng-dev \
+    linux-headers \
+    build-base
+
+# Create app directory
+WORKDIR /app
+
+# Install pip and poetry (temporarily for export)
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir "poetry==1.4.2"
+
+# Copy only dependency files first
+COPY backend/pyproject.toml backend/poetry.lock ./
+
+# Export dependencies to requirements.txt and install
+RUN poetry export -f requirements.txt --output requirements.txt --without-hashes && \
+    pip install -r requirements.txt
+
+# Copy application code
+COPY backend .
+
+# Expose the port the app runs on
+EXPOSE 7000
+
+# Command to run the application
+CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7000"]

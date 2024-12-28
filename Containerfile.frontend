@@ -1,0 +1,19 @@
+FROM node:18-alpine
+
+# Create app directory
+WORKDIR /app
+
+# Install dependencies first (for better caching)
+COPY frontend/package.json frontend/yarn.lock ./
+
+# Install dependencies
+RUN yarn install
+
+# Copy the rest of the application (excluding node_modules)
+COPY frontend .
+
+# Expose the port Vite runs on
+EXPOSE 5173
+
+# Start the development server
+CMD ["yarn", "dev", "--host", "0.0.0.0"]

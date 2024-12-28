@@ -2,7 +2,7 @@ import os
 from typing import Awaitable, Callable
 from openai import AsyncOpenAI
 
-MODEL_GPT_4_VISION = "gpt-4-vision-preview"
+MODEL_GPT_4 = "gpt-4-turbo"
 
 
 async def stream_openai_response(
@@ -10,15 +10,17 @@ async def stream_openai_response(
 ):
     client = AsyncOpenAI(api_key=api_key)
 
-    model = MODEL_GPT_4_VISION
+    model = MODEL_GPT_4
 
     # Base parameters
-    params = {"model": model, "messages": messages, "stream": True, "timeout": 600}
-
-    # Add 'max_tokens' only if the model is a GPT4 vision model
-    if model == MODEL_GPT_4_VISION:
-        params["max_tokens"] = 4096
-        params["temperature"] = 0
+    params = {
+        "model": model,
+        "messages": messages,
+        "stream": True,
+        "timeout": 600,
+        "max_tokens": 4096,
+        "temperature": 0
+    }
 
     completion = await client.chat.completions.create(**params)
     full_response = ""
